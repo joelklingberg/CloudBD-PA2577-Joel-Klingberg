@@ -11,7 +11,12 @@ node server1.lan {
 
   exec {'symbolic link':
     path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
-    command => "ln -sf /vagrant/hosts /etc/hosts"
+    command => "ln -s /vagrant/hosts /etc/hosts"
+  }
+
+  file {'/etc/hosts':
+  ensure => file,
+  target => '/vagrant/hosts'
   }
 
   exec {'write ip':
