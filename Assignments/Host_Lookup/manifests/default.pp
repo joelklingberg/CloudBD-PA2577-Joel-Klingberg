@@ -4,35 +4,27 @@ node server1.lan {
     path    => ['/bin', '/usr/bin'],
   }
 
-  exec {'rm hosts':
-    path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
-    command => "rm -f /etc/hosts"
-  }
-
-  exec {'symbolic link':
-    path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
-    command => "ln -s /vagrant/hosts /etc/hosts"
+  file {'/vagrant/hosts':
+    ensure => file,
   }
 
   file {'/etc/hosts':
-  ensure => file,
+  ensure => link,
+  force => true,
   target => '/vagrant/hosts'
   }
 
-  exec {'write ip':
-    provider => shell,
-    #command => "echo ifconfig eth0 | grep inet | awk '{ print $2 }' | awk -F: '{print $2}' | head -1 >> /etc/hosts/server1",
-    command => "echo hello >> /etc/hosts",
-    path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
+  if $networking[interfaces][eth1]==undef {
+    $myip=$networking[ip]
+  } else {
+    $myip=$networking[interfaces][eth1][ip]
   }
 
-#  exec {'write ip':
-#    provider => shell,
-#    #command => "echo ifconfig eth0 | grep inet | awk '{ print $2 }' | awk -F: '{print $2}' | head -1 >> /etc/hosts",
-#    command => "echo ifconfig eth0 | grep inet | awk '{ print $2 }' >> /etc/hosts",
-#    path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
-#  }
-  
+  host{$hostname:
+    ensure=>'present',
+    target=>'/vagrant/hosts',
+    ip=>$myip,
+  }
 
 }
 
@@ -42,25 +34,25 @@ node server2.lan {
     path    => ['/bin', '/usr/bin'],
   }
 
-  exec {'rm hosts':
-    path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
-    command => "rm -f /etc/hosts"
-  }
-
-  exec {'symbolic link':
-    path =>  [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
-    command => "ln -s /vagrant/hosts /etc/hosts"
+  file {'/vagrant/hosts':
+    ensure => file,
   }
 
   file {'/etc/hosts':
-  ensure => file,
+  ensure => link,
+  force => true,
   target => '/vagrant/hosts'
-}
+  }
 
+  if $networking[interfaces][eth1]==undef {
+    $myip=$networking[ip]
+  } else {
+    $myip=$networking[interfaces][eth1][ip]
+  }
 
-#  exec {'write ip':
-#    command => "echo ifconfig eth0 | grep inet | awk '{ print $2 }' | awk -F: '{print $2}' | head -1 >> file",
-#    path => '/etc/hosts'
-#  }
-
+  host{$hostname:
+    ensure=>'present',
+    target=>'/vagrant/hosts',
+    ip=>$myip,
+  }
 }
