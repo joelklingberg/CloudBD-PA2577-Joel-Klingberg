@@ -1,0 +1,38 @@
+require "vagrant-aws"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "aws"
+
+  config.puppet_install.puppet_version = :latest 
+  config.vm.provision :puppet do |puppet|
+    puppet.manifests_path = "./manifests"
+    puppet.manifest_file = "default.pp"
+  end
+
+  config.vm.provider :aws do |appserver, override|
+    appserver.tags = { 'Name' => 'appserver' }
+    appserver.access_key_id = "access key"
+    appserver.secret_access_key = "secret key"
+    appserver.keypair_name = "ssh keypair name"
+    appserver.instance_type = "t2.micro"
+    appserver.region = "us-east-1"
+    appserver.ami = "ami-20be7540"
+    appserver.security_groups = ["default"]
+    override.ssh.username = "ubuntu"
+    override.ssh.private_key_path = "~/.ssh/ssh-keypair-file.csv"
+  end
+
+  config.vm.provider :aws do |dbserver, override|
+    dbserver.tags = { 'Name' => 'dbserver' }
+    dbserver.access_key_id = "access key"
+    dbserver.secret_access_key = "secret key"
+    dbserver.keypair_name = "ssh keypair name"
+    dbserver.instance_type = "t2.micro"
+    dbserver.region = "us-east-1"
+    dbserver.ami = "ami-20be7540"
+    dbserver.security_groups = ["default"]
+    override.ssh.username = "ubuntu"
+    override.ssh.private_key_path = "~/.ssh/ssh-keypair-file.csv"
+  end
+
+end
